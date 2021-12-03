@@ -2,7 +2,7 @@ package me.benetis.day2
 
 object InputDay2 {
 
-  val input = """forward 3
+  val input = """|forward 3
                 |down 9
                 |forward 5
                 |up 1
@@ -1001,7 +1001,6 @@ object InputDay2 {
                 |up 5
                 |down 2
                 |down 9
-                |forward 9
-                |""".stripMargin
+                |forward 9""".stripMargin
 
 }
