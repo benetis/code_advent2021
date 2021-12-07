@@ -14,13 +14,11 @@ object Puzzle2 extends ZIOAppDefault {
     oxygen = findLifeSupportRating(
       diagnostics,
       indexToCheck = 0,
-      compareFn = (ones, zeros) => ones >= zeros,
       filterEqualCheck = 1
     )
     co2Scrubber = findLifeSupportRating(
       diagnostics,
       indexToCheck = 0,
-      compareFn = (ones, zeros) => ones >= zeros,
       filterEqualCheck = 0
     )
     lifeSup = lifeSupportRating(oxygen, co2Scrubber)
@@ -31,7 +29,6 @@ object Puzzle2 extends ZIOAppDefault {
   def findLifeSupportRating(
       diagnostics: Vector[DiagnosticReportLine],
       indexToCheck: Int,
-      compareFn: (Int, Int) => Boolean,
       filterEqualCheck: Int
   ): BinaryNumberAsSeq = {
 
@@ -41,11 +38,10 @@ object Puzzle2 extends ZIOAppDefault {
 
       val ones = countHowManyBitsAreOne(indexToCheck, diagnostics)
       val zeros = diagnostics.size - ones
-      if (compareFn(ones, zeros)) {
+      if (ones >= zeros) {
         findLifeSupportRating(
           diagnostics.filter(_.numbers(indexToCheck) == filterEqualCheck),
           indexToCheck + 1,
-          compareFn,
           filterEqualCheck
         )
       } else
@@ -54,7 +50,6 @@ object Puzzle2 extends ZIOAppDefault {
             _.numbers(indexToCheck) == Math.abs(filterEqualCheck - 1)
           ),
           indexToCheck + 1,
-          compareFn,
           filterEqualCheck
         )
     }
