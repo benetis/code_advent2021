@@ -33,35 +33,40 @@ object Puzzle1 extends ZIOAppDefault {
         grid
       )
     )
-    result = bingo(initialState, numbersToDraw)
+    (winningGrid, lastDraw) = bingo(
+      initialState,
+      numbersToDraw,
+      numbersToDraw.head
+    )
+    result = findSumOfAllUnmarkedNumbers(winningGrid) * lastDraw.value
     _ <- printLine(result)
   } yield ()
 
   @tailrec
   def bingo(
       markedState: Vector[BingoGridState],
-      toDraw: Vector[Draw]
-  ): BingoGridInput = {
-
+      toDraw: Vector[Draw],
+      lastDraw: Draw
+  ): (BingoGridState, Draw) = {
     areWeWinningSon(markedState) match {
-      case Some(value) => value
+      case Some(value) => (value, lastDraw)
       case None =>
         val updated = markedState.map(state => markNumbers(state, toDraw.head))
 
-        bingo(updated, toDraw.tail)
+        bingo(updated, toDraw.tail, toDraw.head)
     }
   }
 
   private def areWeWinningSon(
       state: Vector[BingoGridState]
-  ): Option[BingoGridInput] = {
+  ): Option[BingoGridState] = {
     def horizontalWinner() =
       state.find(_.lines.exists(_.value.forall(_ == true)))
     def verticalWinner() = state.find(gridState =>
       gridState.lines.map(_.value).transpose.exists(_.forall(_ == true))
     )
 
-    horizontalWinner().orElse(verticalWinner()).map(_.bingoGrid)
+    horizontalWinner().orElse(verticalWinner())
   }
 
   private def markNumbers(
@@ -83,6 +88,22 @@ object Puzzle1 extends ZIOAppDefault {
     }
 
     state.copy(lines = updatedLines)
+  }
+
+  private def findSumOfAllUnmarkedNumbers(gridState: BingoGridState): Int = {
+    gridState.lines
+      .zip(gridState.bingoGrid.lines)
+      .foldLeft(0)((prev, curr) => {
+        val (lineState, lineInput) = curr
+        prev + sumAllUnmarkedLineMembers(lineState, lineInput)
+      })
+  }
+
+  private def sumAllUnmarkedLineMembers(
+      lineState: BingoLineState,
+      lineInput: BingoLineInput
+  ): Int = {
+    lineState.value.zip(lineInput.value).filterNot(_._1).map(_._2).sum
   }
 
   private def readNumbersToDraw(line: String): Task[Vector[Draw]] = Task {
