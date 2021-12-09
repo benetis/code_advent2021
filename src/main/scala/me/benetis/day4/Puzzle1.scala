@@ -69,7 +69,7 @@ object Puzzle1 extends ZIOAppDefault {
     horizontalWinner().orElse(verticalWinner())
   }
 
-  private def markNumbers(
+  def markNumbers(
       state: BingoGridState,
       draw: Draw
   ): BingoGridState = {
@@ -90,7 +90,7 @@ object Puzzle1 extends ZIOAppDefault {
     state.copy(lines = updatedLines)
   }
 
-  private def findSumOfAllUnmarkedNumbers(gridState: BingoGridState): Int = {
+  def findSumOfAllUnmarkedNumbers(gridState: BingoGridState): Int = {
     gridState.lines
       .zip(gridState.bingoGrid.lines)
       .foldLeft(0)((prev, curr) => {
@@ -106,11 +106,11 @@ object Puzzle1 extends ZIOAppDefault {
     lineState.value.zip(lineInput.value).filterNot(_._1).map(_._2).sum
   }
 
-  private def readNumbersToDraw(line: String): Task[Vector[Draw]] = Task {
+  def readNumbersToDraw(line: String): Task[Vector[Draw]] = Task {
     line.split(",").filter(_.nonEmpty).map(_.toInt).map(Draw).toVector
   }
 
-  private def readBingoGrids(
+  def readBingoGrids(
       allBingoLines: Vector[String]
   ): Task[Vector[BingoGridInput]] = {
     ZIO.collectAll(allBingoLines.grouped(6).map(readBingoGrid).toVector)
