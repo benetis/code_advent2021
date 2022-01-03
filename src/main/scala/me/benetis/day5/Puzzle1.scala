@@ -18,8 +18,24 @@ object Puzzle1 extends ZIOAppDefault {
       (buff: BufferedSource) => UIO(buff.close()),
       (buff: BufferedSource) => Task(buff.getLines().toVector)
     )
+    ranges <- Task(lines.map(parseHydrothermalVentRange))
+    filteredRanges <- Task(ranges.filter(r => isDiagonal(r) || isVerticalOrHorizonal(r)))
     _ <- printLine("result")
   } yield ()
+
+  def generatePoints(ventRange: VentRange): Vector[Point] = {
+    val xRange = Range.inclusive(ventRange.p1.x, ventRange.p2.x)
+    val yRange = Range.inclusive(ventRange.p1.y, ventRange.p2.y)
+    xRange.toVector.zip(yRange.toVector).map { case(x, y) => Point(x, y)}
+  }
+
+  /* https://en.wikipedia.org/wiki/Linear_equation#Two-point%20form */
+  def isDiagonal(ventRange: VentRange): Boolean =
+    Math.abs(ventRange.p1.x - ventRange.p2.x) == Math.abs(ventRange.p1.y - ventRange.p2.y)
+
+  def isVerticalOrHorizonal(ventRange: VentRange): Boolean =
+    ventRange.p1.x == ventRange.p2.x ||
+      ventRange.p1.y == ventRange.p2.y
 
   def parseHydrothermalVentRange(line: String): VentRange = {
     def parseCoords(coords: String): Point = {
